@@ -33,13 +33,19 @@ export default function Page() {
   const [allLogs, setAllLogs] = useState<LogItem[]>([]);
   const [logs, setLogs] = useState<LogItem[]>([]);
   const [logCount, setLogCount] = useState(50);
-  const [selectedSite, setSelectedSite] = useState<string>("all");
-  const [mounted, setMounted] = useState(false);
+  const [selectedSite, setSelectedSite] = useState<string>("");
 
   // クライアント側マウント検知
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // 現場リストの最初を自動選択
+  useEffect(() => {
+    if (siteList.length > 0 && !selectedSite) {
+      setSelectedSite(siteList[0].id);
+    }
+  }, [siteList, selectedSite]);
 
   // データ取得
   useEffect(() => {
@@ -87,22 +93,8 @@ export default function Page() {
 
   // フィルタされたログ（現場選択に応じて）
   const filteredLogs = useMemo(() => {
-  if (selectedSite === "all") {
-    // 全現場：testを除外
-    const testDevices = siteList
-      .filter(s => s.id === "test")
-      .flatMap(s => s.devices);
-    return allLogs.filter(log => !testDevices.includes(log.dev || ""));
-  }
-  
-  const site = siteList.find(s => s.id === selectedSite);
-  if (!site) return allLogs;
-
-  return allLogs.filter(log => site.devices.includes(log.dev || ""));
-}, [allLogs, selectedSite, siteList]);
-    
     const site = siteList.find(s => s.id === selectedSite);
-    if (!site) return allLogs;
+    if (!site) return [];
 
     return allLogs.filter(log => site.devices.includes(log.dev || ""));
   }, [allLogs, selectedSite, siteList]);
@@ -156,7 +148,6 @@ export default function Page() {
             value={selectedSite}
             onChange={(e) => setSelectedSite(e.target.value)}
           >
-            <option value="all">全現場</option>
             {siteList.map((site) => (
               <option key={site.id} value={site.id}>
                 {site.name} ({site.devices.length}台)
@@ -164,7 +155,9 @@ export default function Page() {
             ))}
           </select>
 
-          <span className="text-xs text-gray-500">最終更新：{fmtTs(Number(latestTs))}</span>
+          <span className="text-xs text-gray-500">
+            最終更新：{mounted ? fmtTs(Number(latestTs)) : "読込中..."}
+          </span>
         </div>
         <button onClick={() => location.reload()} className="px-3 py-1.5 rounded-full bg-gray-900 text-white text-sm shadow">
           再読込
