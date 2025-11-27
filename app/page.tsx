@@ -33,19 +33,13 @@ export default function Page() {
   const [allLogs, setAllLogs] = useState<LogItem[]>([]);
   const [logs, setLogs] = useState<LogItem[]>([]);
   const [logCount, setLogCount] = useState(50);
-  const [selectedSite, setSelectedSite] = useState<string>("");
+  const [selectedSite, setSelectedSite] = useState<string>("all");
+  const [mounted, setMounted] = useState(false);
 
   // クライアント側マウント検知
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  // 現場リストの最初を自動選択
-  useEffect(() => {
-    if (siteList.length > 0 && !selectedSite) {
-      setSelectedSite(siteList[0].id);
-    }
-  }, [siteList, selectedSite]);
 
   // データ取得
   useEffect(() => {
@@ -156,6 +150,7 @@ export default function Page() {
             value={selectedSite}
             onChange={(e) => setSelectedSite(e.target.value)}
           >
+            <option value="all">全現場</option>
             {siteList.map((site) => (
               <option key={site.id} value={site.id}>
                 {site.name} ({site.devices.length}台)
