@@ -87,7 +87,19 @@ export default function Page() {
 
   // フィルタされたログ（現場選択に応じて）
   const filteredLogs = useMemo(() => {
-    if (selectedSite === "all") return allLogs;
+  if (selectedSite === "all") {
+    // 全現場：testを除外
+    const testDevices = siteList
+      .filter(s => s.id === "test")
+      .flatMap(s => s.devices);
+    return allLogs.filter(log => !testDevices.includes(log.dev || ""));
+  }
+  
+  const site = siteList.find(s => s.id === selectedSite);
+  if (!site) return allLogs;
+
+  return allLogs.filter(log => site.devices.includes(log.dev || ""));
+}, [allLogs, selectedSite, siteList]);
     
     const site = siteList.find(s => s.id === selectedSite);
     if (!site) return allLogs;
