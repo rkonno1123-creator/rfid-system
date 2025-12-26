@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -56,6 +56,49 @@ export default function LoginPage() {
   };
 
   return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label
+          htmlFor="password"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
+          パスワード
+        </label>
+        <input
+          id="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="パスワードを入力"
+          required
+          autoFocus
+        />
+      </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+          {error}
+        </div>
+      )}
+
+      <button
+        type="submit"
+        disabled={loading}
+        className={`w-full py-4 rounded-xl text-white font-bold text-base shadow-lg transition-all ${
+          loading
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-blue-600 active:bg-blue-700 hover:bg-blue-700"
+        }`}
+      >
+        {loading ? "ログイン中..." : "ログイン"}
+      </button>
+    </form>
+  );
+}
+
+export default function LoginPage() {
+  return (
     <main className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
         <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
@@ -65,44 +108,9 @@ export default function LoginPage() {
           ログイン
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              パスワード
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="パスワードを入力"
-              required
-              autoFocus
-            />
-          </div>
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full py-4 rounded-xl text-white font-bold text-base shadow-lg transition-all ${
-              loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 active:bg-blue-700 hover:bg-blue-700"
-            }`}
-          >
-            {loading ? "ログイン中..." : "ログイン"}
-          </button>
-        </form>
+        <Suspense fallback={<div className="text-center py-4">読み込み中...</div>}>
+          <LoginForm />
+        </Suspense>
       </div>
     </main>
   );
