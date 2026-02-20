@@ -12,7 +12,7 @@ const REFRESH_MS = 5000;
 
 type LogItem = { id: string; uid?: string; ts?: number; dev?: string };
 type PersonsMap = Record<string, { name?: string; company?: string; displayName?: string; site?: string }>;
-type MembersMap = Record<string, { person_id: string }>;
+type MembersMap = Record<string, { no: number }>;
 type DevicesMap = Record<string, { site_id?: string; site_name?: string; gate?: string }>;
 
 const fmtTs = (t?: number) => {
@@ -70,8 +70,8 @@ export default function Page() {
   // uid → person情報を引く関数
   const getPersonByUid = (uid: string) => {
     const member = membersMap[uid];
-    if (!member?.person_id) return {};
-    return personsMap[member.person_id] || {};
+    if (!member?.no) return {};
+    return personsMap[String(member.no)] || {};
   };
 
   const siteList = useMemo(() => {
